@@ -1,0 +1,11 @@
+{
+  "project": "Sanity",
+  "plugins": [
+    {
+      "id": "sanity",
+      "title": "Sanity",
+      "url": "/tools/sanity/index.html",
+      "isPalette": true
+    }
+  ]
+}
