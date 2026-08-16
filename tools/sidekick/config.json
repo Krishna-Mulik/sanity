@@ -4,8 +4,8 @@
     {
       "id": "sanity",
       "title": "Sanity",
-      "url": "/tools/sanity/index.html",
-      "isPalette": true
+      "event": "sanity",
+      "environments": ["any"]
     }
   ]
 }
