@@ -216,36 +216,19 @@ async function loadLazy(doc) {
 function initSanity() {
   const sidekick = document.querySelector('aem-sidekick');
   if (!sidekick) {
-    // Sidekick hasn't initialized yet — it dispatches this on `document`
-    // once it has (EXTERNAL_EVENTS.SIDEKICK_READY in aem-sidekick).
     document.addEventListener('sidekick-ready', initSanity, { once: true });
     return;
   }
   sidekick.addEventListener('custom:sanity', async (event) => {
-    // First click: fetches tools/sanity/index.js (~2.4KB) and, via its
-    // mount() export, a second, separate chunk for the actual panel UI
-    // (~290KB gzip). mount() is idempotent and opens the panel immediately
-    // on this first call; any later click is handled by the panel's own
-    // internal Sidekick listener, so calling mount() again is a no-op.
-    const { mount } = await import('../tools/sanity/index.js');
+    const { mount } = await import('/tools/sanity/index.js');
     mount(event.detail);
   });
 }
-
-/**
- * Loads everything that happens a lot later,
- * without impacting the user experience.
- */
-function loadDelayed() {
-  import('./consent-check.js');
-  initSanity();
-  // load anything that can be postponed to the latest here
-}
+initSanity();
 
 async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
-  loadDelayed();
 }
 
 loadPage();
