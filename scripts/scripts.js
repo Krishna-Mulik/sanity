@@ -206,6 +206,36 @@ async function loadLazy(doc) {
 function loadDelayed() {
   import('./consent-check.js');
   // load anything that can be postponed to the latest here
+
+  // Sanity, delayed approach: mounts for every visitor, not just an
+  // authorized Sidekick user (see event approach below) — showcase visitors
+  // aren't Sidekick collaborators on this project, so the event approach
+  // alone never shows them anything. mountOnLoad() itself further waits for
+  // both the window load event and this page's first LCP entry before
+  // actually mounting, so this never competes with the real page for
+  // bandwidth or main-thread time — it's purely additive UI chrome, not
+  // something a visitor's PageSpeed/LCP score should ever pay for.
+  import('../tools/sanity/index.js').then(({ mountOnLoad }) => mountOnLoad());
+}
+
+/**
+ * Sanity, event approach: opens the panel on a Sidekick "Sanity" button
+ * click, for an authorized Sidekick collaborator on this project. Kept
+ * alongside the delayed approach above rather than replaced by it — this
+ * is the one that opens the panel immediately (autoOpen: true) for someone
+ * actually authoring the page, instead of waiting for load like the
+ * delayed path does.
+ */
+function initSanity() {
+  const sidekick = document.querySelector('aem-sidekick');
+  if (!sidekick) {
+    document.addEventListener('sidekick-ready', initSanity, { once: true });
+    return;
+  }
+  sidekick.addEventListener('custom:sanity', async (event) => {
+    const { mount } = await import('../tools/sanity/index.js');
+    mount(event.detail);
+  });
 }
 
 async function loadPage() {
@@ -215,3 +245,4 @@ async function loadPage() {
 }
 
 loadPage();
+initSanity();
